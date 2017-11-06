@@ -43,21 +43,18 @@ net.Receive("notecomp",function(len,ply)
 		draw.SimpleText("Envoyer la note","Helvetica",100*wi,25*he,white,1,1)
 	end
 	validb.DoClick = function()
-		local notead = DComboBoxa:GetValue()
-		if !sql.TableExists("notes_admin") then
-    		sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée")
-    	end
-    	sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. adminpl:SteamID() .. "' )") 
-    	sql.Query("REPLACE INTO notes_admin SET Note=Note+'"..notead.."', Nombre=Nombre+1 WHERE SteamID='"..adminpl:SteamID().."' ")
+		local notead = tostring(DComboBoxa:GetValue())
+		net.Start("validnoteadd_notation")
+		net.WriteString(notead)
+		net.WriteEntity(adminpl)
+		net.SendToServer()
+    	main:Close()
     end
 
 
 end)
 
 net.Receive("notecomp-admin", function(len,ply)
-
-	if !sql.TableExists("notes_admin") then sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée") end
-	sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. LocalPlayer():SteamID() .. "' )") print("SteamID inséré")
 
 	local main = vgui.Create("DFrame")
 	main:SetSize(500*wi,500*he)
@@ -82,9 +79,7 @@ net.Receive("notecomp-admin", function(len,ply)
 	List:SetSpaceY( 0 )
 	List:SetSpaceX( 0 )
 
-	local getall = sql.Query("SELECT SteamID FROM notes_admin")
-	local notee = ""
-	local nombr = ""
+	local getall = net.ReadTable()
 
 	for k,v in pairs(getall) do
 		local ListItem = List:Add( "DButton" )
@@ -96,8 +91,12 @@ net.Receive("notecomp-admin", function(len,ply)
 			draw.SimpleText(player.GetBySteamID(v):Name(),"Helvetica", 50*wi, 15*he,black,1,1)
 		end
 		ListItem.DoClick = function()
-			notee = sql.QueryValue("SELECT Note FROM notes_admin WHERE SteamID='"..v.."'")
-			nombr = sql.QueryValue("SELECT Nombre FROM notes_admin WHERE SteamID='"..v.."'")
+			net.Start("sendtoreceive_notation")
+			net.WriteString(v)
+			net.SendToServer()
+			net.Receive("sendnono_notation", function()
+			notee = net.ReadString()
+			nombr = net.ReadString() end)
 		end
 	end
 
