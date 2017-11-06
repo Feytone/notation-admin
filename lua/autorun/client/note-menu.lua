@@ -45,7 +45,7 @@ net.Receive("notecomp",function(len,ply)
 	validb.DoClick = function()
 		local notead = DComboBoxa:GetValue()
 		if !sql.TableExists("notes_admin") then
-    		sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note VARCHAR(1), Nombre VARCHAR(50000) UNSIGNED )") print("Table créée")
+    		sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée")
     	end
     	sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. adminpl:SteamID() .. "' )") 
     	sql.Query("REPLACE INTO notes_admin SET Note=Note+'"..notead.."', Nombre=Nombre+1 WHERE SteamID='"..adminpl:SteamID().."' ")
@@ -56,7 +56,7 @@ end)
 
 net.Receive("notecomp-admin", function(len,ply)
 
-	if !sql.TableExists("notes_admin") then sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note VARCHAR(1), Nombre VARCHAR(50000) UNSIGNED )") print("Table créée") end
+	if !sql.TableExists("notes_admin") then sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée") end
 	sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. LocalPlayer():SteamID() .. "' )") print("SteamID inséré")
 
 	local main = vgui.Create("DFrame")
