@@ -5,8 +5,10 @@ util.AddNetworkString("sendtoreceive_notation")
 util.AddNetworkString("sendnono_notation")
 
 if !sql.TableExists("notes_admin") then
-    sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée tout en haut")
+    sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT UNSIGNED, Nombre SMALLINT UNSIGNED )") print("Table créée tout en haut")
 end
+
+print(sql.LastError())
 
 hook.Add("PlayerSay","CommandMtx",function(ply,text)
 
@@ -27,8 +29,8 @@ hook.Add("PlayerSay","CommandMtx",function(ply,text)
 		net.Start("notecomp-admin")
 		net.WriteTable(sql.Query("SELECT SteamID FROM notes_admin"))
 		net.WriteString(sql.QueryValue("SELECT Note FROM notes_admin WHERE SteamID='"..v.."'"))
+		print(sql.LastError())
 		net.Send(ply)
-		else print("La commande n'a pas fonctionné")
 	end
 end)
 
@@ -40,11 +42,11 @@ net.Receive("validnoteadd_notation", function(len,ply)
 	local adminpl = net.ReadEntity()
 
 	if !sql.TableExists("notes_admin") then
-    	sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT(50000) UNSIGNED, Nombre SMALLINT(50000) UNSIGNED )") print("Table créée")
+    	sql.Query("CREATE TABLE notes_admin ( SteamID TEXT, Note SMALLINT UNSIGNED, Nombre SMALLINT UNSIGNED )") print("Table créée") print(sql.LastError())
     else print("table déjà créée")
     end
-    sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. adminpl:SteamID() .. "' )") 
-    sql.Query("REPLACE INTO notes_admin SET Note=Note+'"..notead.."', Nombre=Nombre+1 WHERE SteamID='"..adminpl:SteamID().."' ")
+    sql.Query("INSERT OR IGNORE INTO notes_admin VALUES( SteamID='" .. tostring(adminpl:SteamID()) .. "' )") print(sql.LastError())
+    sql.Query("REPLACE INTO notes_admin (SteamID, Note, Nombre) VALUES(SteamID='" .. tostring(adminpl:SteamID()) .. "', Note=Note+'"..notead.."', Nombre=Nombre+1) ") print(sql.LastError())
 
 end)
 
